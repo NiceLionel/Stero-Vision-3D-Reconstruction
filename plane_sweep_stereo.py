@@ -32,8 +32,6 @@ def backproject_corners(K, width, height, depth, Rt):
         dtype=np.float32,
     ).reshape(2, 2, 3)
 
-    """ YOUR CODE HERE
-    """
     R = Rt[:, 0:3]
     T = Rt[:, -1]
     
@@ -42,8 +40,6 @@ def backproject_corners(K, width, height, depth, Rt):
         for j in range(2):
             points[i, j, :] = (R.T @ (depth * (np.linalg.inv(K) @ points[i, j, :])) + T_inv)
 
-    """ END YOUR CODE
-    """
     return points
 
 
@@ -61,8 +57,6 @@ def project_points(K, Rt, points):
     Output:
         projections -- points_height x points_width x 2 array of 2D projections
     """
-    """ YOUR CODE HERE
-    """
     R = Rt[:, 0:3]
     T = Rt[:, -1]
     height = points.shape[0]
@@ -73,8 +67,6 @@ def project_points(K, Rt, points):
             temp = K @ (R @ points[i, j, :] + T)
             temp = temp / temp[-1]
             projections[i, j, :] = temp[0:2]
-    """ END YOUR CODE
-    """
     return projections
 
 
@@ -82,25 +74,6 @@ def warp_neighbor_to_ref(
     backproject_fn, project_fn, depth, neighbor_rgb, K_ref, Rt_ref, K_neighbor, Rt_neighbor
 ):
     """
-    Warp the neighbor view into the reference view
-    via the homography induced by the imaginary depth plane at the specified depth
-
-    Make use of the functions you've implemented in the same file (which are passed in as arguments):
-    - backproject_corners
-    - project_points
-
-    Also make use of the cv2 functions:
-    - cv2.findHomography
-    - cv2.warpPerspective
-    
-    ! Note, when you use cv2.warpPerspective, you should use the shape (width, height), NOT (height, width)
-    
-    Hint: you should do the follows:
-    1.) apply backproject_corners on ref view to get the virtual 3D corner points in the virtual plane
-    2.) apply project_fn to project these virtual 3D corner points back to ref and neighbor views
-    3.) use findHomography to get teh H between neighbor and ref
-    4.) warp the neighbor view into the reference view
-
     Input:
         backproject_fn -- backproject_corners function
         project_fn -- project_points function
@@ -116,9 +89,6 @@ def warp_neighbor_to_ref(
 
     height, width = neighbor_rgb.shape[:2]
     
-
-    """ YOUR CODE HERE
-    """
     point = np.array(((0, 0),(width, 0),(0, height),(width, height)), dtype=np.float32)
     corner_point_backprojected = backproject_fn(K_ref, width, height, depth, Rt_ref)
     projection = project_fn(K_neighbor, Rt_neighbor, corner_point_backprojected)
@@ -130,8 +100,6 @@ def warp_neighbor_to_ref(
 
     Homography, _ = cv2.findHomography(projected_points, point)
     warped_neighbor = cv2.warpPerspective(neighbor_rgb, Homography, dsize=(width, height))
-    """ END YOUR CODE
-    """
     return warped_neighbor
 
 
@@ -154,8 +122,6 @@ def zncc_kernel_2D(src, dst):
     assert src.ndim == 4 and dst.ndim == 4
     assert src.shape[:] == dst.shape[:]
 
-    """ YOUR CODE HERE
-    """
     height = src.shape[0]
     width = src.shape[1]
     K2 = src.shape[2]
@@ -163,7 +129,6 @@ def zncc_kernel_2D(src, dst):
     
     zncc_3_dimension = np.zeros((height, width, 3))
 
-    
     for i in range(3):
         single_src = src[:, :, :, i].transpose(2, 0, 1).reshape(K2, -1)
         single_dst = dst[:, :, :, i].transpose(2, 0, 1).reshape(K2, -1)
@@ -174,9 +139,7 @@ def zncc_kernel_2D(src, dst):
         num = (single_src - src_W) * (single_dst - dst_W)
         zncc_3_dimension[:, :, i] = (np.sum(num, axis=0) / ((dst_sigma + EPS) * (src_sigma + EPS))).reshape(height, width)                                                                                                         
     zncc = np.sum(zncc_3_dimension, axis=2)
-    """ END YOUR CODE
-    """
-
+    
     return zncc  # height x width
 
 
@@ -192,8 +155,6 @@ def backproject(dep_map, K):
     """
     _u, _v = np.meshgrid(np.arange(dep_map.shape[1]), np.arange(dep_map.shape[0]))
 
-    """ YOUR CODE HERE
-    """
     height = dep_map.shape[0]
     width = dep_map.shape[1]
     dep_map_flatted = dep_map.flatten()
@@ -214,6 +175,5 @@ def backproject(dep_map, K):
         xyz_cam[v, u, 0] = cam_point[:, i][0]
         xyz_cam[v, u, 1] = cam_point[:, i][1]
         xyz_cam[v, u, 2] = cam_point[:, i][2]
-    """ END YOUR CODE
-    """
+
     return xyz_cam

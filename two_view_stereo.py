@@ -89,12 +89,10 @@ def compute_right2left_transformation(R_wi, T_wi, R_wj, T_wj):
         p_i = R_ji @ p_j + T_ji, B is the baseline
     """
 
-    """Student Code Starts"""
     R_ji = R_wi @ R_wj.T
     T_ji = -R_wi @ R_wj.T @ T_wj + T_wi 
     B = np.linalg.norm(T_ji)
     
-    """Student Code Ends"""
 
     return R_ji, T_ji, B
 
@@ -116,7 +114,6 @@ def compute_rectification_R(T_ji):
     
     # ! Note, we define a small EPS at the beginning of this file, use it when you normalize each column
 
-    """Student Code Starts"""
     R_irect = np.zeros((3,3))
     e_1 = e_i / np.linalg.norm(e_i)
     R2 = e_1
@@ -125,8 +122,6 @@ def compute_rectification_R(T_ji):
     R_irect[0] = R1
     R_irect[1] = R2
     R_irect[2] = R3
-    """Student Code Ends"""
-
     return R_irect
 
 
@@ -149,14 +144,11 @@ def ssd_kernel(src, dst):
     assert src.ndim == 3 and dst.ndim == 3
     assert src.shape[1:] == dst.shape[1:]
 
-    """Student Code Starts"""
     ssd_3_dimension = np.zeros((src.shape[0],dst.shape[0],3))
     for i in range(3):
         for j in range(src.shape[0]):
             ssd_3_dimension[j, :, i] = np.linalg.norm((src[j, :, i]-dst[:, :, i]), axis=1) ** 2
     ssd = np.sum(ssd_3_dimension, axis=2)
-    """Student Code Ends"""
-
     return ssd  # M,N
 
 
@@ -179,14 +171,11 @@ def sad_kernel(src, dst):
     assert src.ndim == 3 and dst.ndim == 3
     assert src.shape[1:] == dst.shape[1:]
 
-    """Student Code Starts"""
     sad_3_dimension = np.zeros((src.shape[0], dst.shape[0],3))
     for i in range(3):
         for j in range(src.shape[0]):
             sad_3_dimension[j, :, i] = np.linalg.norm((src[j, :, i]-dst[:, :, i]), ord=1, axis=1)
     sad = np.sum(sad_3_dimension, axis=2)
-    """Student Code Ends"""
-
     return sad  # M,N
 
 
@@ -209,7 +198,6 @@ def zncc_kernel(src, dst):
     assert src.ndim == 3 and dst.ndim == 3
     assert src.shape[1:] == dst.shape[1:]
 
-    """Student Code Starts"""
     row = src.shape[0]
     col = dst.shape[0]
     zncc_3_dimension = np.zeros((row,col,3))
@@ -228,8 +216,6 @@ def zncc_kernel(src, dst):
             num = (src[j, :, i] - src_W[j, i]) * (dst[:, :, i] - dst_W[:, i].reshape(-1, 1))
             zncc_3_dimension[j, :, i] = np.sum(num, axis=1) / dom
     zncc = np.sum(zncc_3_dimension, axis=2)
-    """Student Code Ends"""
-
     # ! note here we use minus zncc since we use argmin outside, but the zncc is a similarity, which should be maximized
     return zncc * (-1.0)  # M,N
 
@@ -248,7 +234,6 @@ def image2patch(image, k_size):
         The patch buffer for each pixel
     """
 
-    """Student Code Starts"""
     height = image.shape[0]
     width = image.shape[1]
     width_pad = k_size//2
@@ -263,8 +248,6 @@ def image2patch(image, k_size):
             for k in range(3):
                 pooling_layer = image_zero_padding[padding_y, padding_x, k].flatten()
                 patch_buffer[j, i, :, k] = pooling_layer
-    """Student Code Starts"""
-
     return patch_buffer  # H,W,K**2,3
 
 
@@ -293,7 +276,6 @@ def compute_disparity_map(
         For each pixel, 1.0 if LR consistent, otherwise 0.0
     """
 
-    """Student Code Starts"""
     height, width= rgb_i.shape[0], rgb_i.shape[1]
     lr_consistency_mask = np.zeros((height, width), dtype=np.float64)
     disp_map = np.zeros((height, width), dtype=np.float64)
@@ -326,8 +308,6 @@ def compute_disparity_map(
         
     lr_consistency_mask = lr_consistency_mask.astype(np.float64)
     disp_map = disp_map.astype(np.float64)
-    """Student Code Ends"""
-
     return disp_map, lr_consistency_mask
 
 
@@ -352,7 +332,6 @@ def compute_dep_and_pcl(disp_map, B, K):
         each pixel is the xyz coordinate of the back projected point cloud in camera frame
     """
 
-    """Student Code Starts"""
     fx = K[0, 0]
     fy = K[1, 1]
     
@@ -377,8 +356,6 @@ def compute_dep_and_pcl(disp_map, B, K):
         xyz_cam[v, u, 0] = cam_points[:, i][0]
         xyz_cam[v, u, 1] = cam_points[:, i][1]
         xyz_cam[v, u, 2] = cam_points[:, i][2]
-    """Student Code Ends"""
-
     return dep_map, xyz_cam
 
 
@@ -434,15 +411,11 @@ def postprocess(
     pcl_cam = xyz_cam.reshape(-1, 3)[mask.reshape(-1) > 0]
     pcl_color = rgb.reshape(-1, 3)[mask.reshape(-1) > 0]
 
-    """Student Code Starts"""
-    
     T_cw = -R_wc.T @ T_wc
     row = pcl_cam.shape[0]
     pcl_world = np.zeros((row, 3))
     for i in range(row):
         pcl_world[i, :] = (R_wc.T @ pcl_cam[i, :]).flatten() + T_cw.flatten()
-    """Student Code Ends"""
-
     # np.savetxt("./debug_pcl_world.txt", np.concatenate([pcl_world, pcl_color], -1))
     # np.savetxt("./debug_pcl_rect.txt", np.concatenate([pcl_cam, pcl_color], -1))
 

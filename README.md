@@ -9,6 +9,7 @@ This repository is a deep dive into the world of stereo vision and 3D reconstruc
 - **Comprehensive Documentation**: A step-by-step guide answering core project questions, paired with mathematical derivations, screenshots, and insights.
 
 ## Usage
-Run plane_sweep.ipynb and two_view.ipynb respectively to use different methods doing 3D reconstruction. 
+
+  Run plane_sweep.ipynb and two_view.ipynb respectively to use different methods doing 3D reconstruction. 
 
 The techniques and skills refined throughout this project find relevance in various domains such as computer vision, robotics, and augmented reality. Dive in to witness the transformation of 2D imagery into tangible 3D worlds!
